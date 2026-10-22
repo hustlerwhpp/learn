@@ -36,10 +36,10 @@ export function TheoryBlock({ block }: { block: Block }) {
     case "h":
       return <h3 className="mt-7 text-lg font-bold text-zinc-900 first:mt-0 dark:text-zinc-50">{block.text}</h3>;
     case "p":
-      return <p className="mt-3 leading-relaxed text-zinc-600 dark:text-zinc-300">{rich(block.text)}</p>;
+      return <p className="mt-3 max-w-3xl leading-relaxed text-zinc-600 dark:text-zinc-300">{rich(block.text)}</p>;
     case "list":
       return (
-        <ul className="mt-3 list-disc space-y-1.5 pl-5 leading-relaxed text-zinc-600 marker:text-violet-500 dark:text-zinc-300">
+        <ul className="mt-3 max-w-3xl list-disc space-y-1.5 pl-5 leading-relaxed text-zinc-600 marker:text-violet-500 dark:text-zinc-300">
           {block.items.map((item, i) => (
             <li key={i}>{rich(item)}</li>
           ))}
@@ -56,8 +56,8 @@ export function TheoryBlock({ block }: { block: Block }) {
       );
     case "note":
       return (
-        <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100">
-          💡 {rich(block.text)}
+        <div className="mt-4 max-w-3xl rounded-2xl border border-amber-200 border-l-4 border-l-amber-400 bg-amber-50 p-4 text-sm leading-relaxed text-amber-900 dark:border-amber-900/50 dark:border-l-amber-500 dark:bg-amber-950/30 dark:text-amber-100">
+          {rich(block.text)}
         </div>
       );
   }
@@ -69,9 +69,14 @@ export function ExampleBlock({ code, caption }: { code: string; caption?: string
   return (
     <div className="overflow-hidden rounded-3xl border border-zinc-200 dark:border-zinc-800">
       <div className="grid md:grid-cols-2">
-        <pre className="max-h-80 overflow-auto bg-zinc-950 p-4 font-mono text-[12.5px] leading-relaxed text-zinc-100">
-          {code}
-        </pre>
+        <div className="flex flex-col bg-zinc-950">
+          <div className="border-b border-zinc-800 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-zinc-400">
+            Код примера
+          </div>
+          <pre className="max-h-80 flex-1 overflow-auto p-4 font-mono text-[12.5px] leading-relaxed text-zinc-100">
+            {code}
+          </pre>
+        </div>
         <div className="flex flex-col bg-white dark:bg-zinc-900">
           <div className="border-b border-zinc-100 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-zinc-400 dark:border-zinc-800">
             Результат
@@ -174,7 +179,7 @@ export function TaskBlock({ lesson, onComplete }: { lesson: Lesson; onComplete: 
   return (
     <div className="space-y-4">
       <div className="rounded-3xl border border-violet-200 bg-violet-50 p-4 dark:border-violet-900/60 dark:bg-violet-950/30">
-        <div className="text-sm font-bold uppercase tracking-wide text-violet-700 dark:text-violet-300">🎯 Задание</div>
+        <div className="text-sm font-bold uppercase tracking-wide text-violet-700 dark:text-violet-300">Задание</div>
         <div className="mt-1 leading-relaxed text-zinc-700 dark:text-zinc-200">{rich(lesson.task.brief)}</div>
       </div>
 
@@ -238,21 +243,21 @@ export function TaskBlock({ lesson, onComplete }: { lesson: Lesson; onComplete: 
           onClick={check}
           className="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
         >
-          ✓ Проверить задание
+          Проверить задание
         </button>
         <button
           type="button"
           onClick={() => setShowHint((v) => !v)}
           className="rounded-xl border border-zinc-300 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
         >
-          💡 Подсказка
+          Подсказка
         </button>
         <button
           type="button"
           onClick={() => setShowSolution((v) => !v)}
           className="rounded-xl border border-zinc-300 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
         >
-          👀 Решение
+          Решение
         </button>
       </div>
 
@@ -279,20 +284,47 @@ export function TaskBlock({ lesson, onComplete }: { lesson: Lesson; onComplete: 
 
       {results && (
         <div
+          data-check-results={passed ? "passed" : "failed"}
           className={`rounded-3xl border p-4 ${
             passed
               ? "border-emerald-200 bg-emerald-50 dark:border-emerald-900/60 dark:bg-emerald-950/30"
-              : "border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
+              : "border-rose-200 bg-rose-50/60 dark:border-rose-900/50 dark:bg-rose-950/20"
           }`}
         >
-          <div className="font-bold text-zinc-900 dark:text-zinc-50">
-            {passed ? "🎉 Задание выполнено! Урок засчитан." : "Проверка:"}
+          <div className={`font-bold ${passed ? "text-emerald-800 dark:text-emerald-200" : "text-rose-800 dark:text-rose-200"}`}>
+            {passed ? "Задание выполнено! Урок засчитан." : "Проверка: пока есть ошибки"}
           </div>
           <ul className="mt-2 space-y-1.5">
             {lesson.task.checks.map((c, i) => (
               <li key={i} className="flex items-start gap-2 text-sm">
-                <span>{results[i] ? "✅" : "⬜"}</span>
-                <span className={results[i] ? "text-zinc-700 dark:text-zinc-200" : "text-zinc-500 dark:text-zinc-400"}>{c.label}</span>
+                {results[i] ? (
+                  <span
+                    data-check-status="pass"
+                    aria-hidden="true"
+                    className="mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3">
+                      <path d="M4.5 12.5 10 18 19.5 6.5" />
+                    </svg>
+                  </span>
+                ) : (
+                  <span
+                    data-check-status="fail"
+                    aria-hidden="true"
+                    className="mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-rose-500 text-white"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" className="h-3 w-3">
+                      <path d="M6 6l12 12M18 6L6 18" />
+                    </svg>
+                  </span>
+                )}
+                <span
+                  className={
+                    results[i] ? "text-zinc-500 dark:text-zinc-400" : "font-medium text-zinc-900 dark:text-zinc-50"
+                  }
+                >
+                  {c.label}
+                </span>
               </li>
             ))}
           </ul>
@@ -308,7 +340,7 @@ export function TaskBlock({ lesson, onComplete }: { lesson: Lesson; onComplete: 
 export function LessonView({ lesson, onComplete }: { lesson: Lesson; onComplete: (id: string) => void }) {
   return (
     <div>
-      <p className="leading-relaxed text-zinc-600 dark:text-zinc-300">{rich(lesson.intro)}</p>
+      <p className="max-w-3xl leading-relaxed text-zinc-600 dark:text-zinc-300">{rich(lesson.intro)}</p>
       <div className="mt-2">
         {lesson.theory.map((b, i) => (
           <TheoryBlock key={i} block={b} />
