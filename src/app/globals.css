@@ -26,3 +26,29 @@ body {
   scrollbar-width: thin;
   scrollbar-color: rgb(161 161 170 / 0.5) transparent;
 }
+
+::selection {
+  background-color: rgb(139 92 246 / 0.25);
+}
+
+/* Лёгкий переход при смене экрана (список ↔ урок), без тяжёлой анимации. */
+@keyframes view-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.view-enter {
+  animation: view-in 0.25s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .view-enter {
+    animation: none;
+  }
+}
