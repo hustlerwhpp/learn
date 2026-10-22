@@ -84,7 +84,18 @@ export function ExampleBlock({ code, caption }: { code: string; caption?: string
   );
 }
 
-/* ---------- задание с редактором и автопроверкой ---------- */
+/* ---------- задание с редактором и автопроверкой ----------
+
+   Практика устроена в две колонки: слева редактор, справа — предпросмотр.
+   Предпросмотр ЖИВОЙ: код ученика попадает в iframe автоматически, с небольшим
+   дебаунсом после каждого изменения, отдельной кнопки «Запустить» нет.
+
+   ВАЖНО про sandbox: нужны ОБА флага — allow-scripts и allow-same-origin.
+   Без allow-same-origin документ в srcDoc получает непрозрачный origin, и
+   родительская страница не может прочитать iframe.contentDocument (он null) —
+   из-за этого автопроверка в реальном браузере молча не работала, а скриптам
+   ученика был запрещён localStorage. Скрипты при этом выполняются и с одним
+   allow-scripts, поэтому поломка выглядела как «превью мёртвое». */
 
 export function TaskBlock({ lesson, onComplete }: { lesson: Lesson; onComplete: (id: string) => void }) {
   const [code, setCode] = useState(lesson.task.starter);
@@ -104,6 +115,12 @@ export function TaskBlock({ lesson, onComplete }: { lesson: Lesson; onComplete: 
     setShowSolution(false);
     setPassed(false);
   }, [lesson.id, lesson.task.starter]);
+
+  // Живое обновление предпросмотра: 300 мс после последнего изменения кода.
+  useEffect(() => {
+    const t = setTimeout(() => setPreview(code), 300);
+    return () => clearTimeout(t);
+  }, [code]);
 
   const runChecks = useCallback(() => {
     const iframe = iframeRef.current;
@@ -135,18 +152,23 @@ export function TaskBlock({ lesson, onComplete }: { lesson: Lesson; onComplete: 
     }
   };
 
-  const run = () => setPreview(code);
-
   const check = () => {
+    // Мгновенно применяем текущий код (не ждём дебаунс) и проверяем после загрузки.
     pendingCheck.current = true;
     setPreview(code);
-    // если srcDoc не изменился, onLoad может не сработать — подстраховка
+    // если srcDoc не изменился, onLoad может не сработать — подстраховки
     setTimeout(() => {
       if (pendingCheck.current) {
         pendingCheck.current = false;
         runChecks();
       }
-    }, 450);
+    }, 500);
+    setTimeout(() => {
+      if (pendingCheck.current) {
+        pendingCheck.current = false;
+        runChecks();
+      }
+    }, 1400);
   };
 
   return (
@@ -156,51 +178,61 @@ export function TaskBlock({ lesson, onComplete }: { lesson: Lesson; onComplete: 
         <div className="mt-1 leading-relaxed text-zinc-700 dark:text-zinc-200">{rich(lesson.task.brief)}</div>
       </div>
 
-      <div className="overflow-hidden rounded-3xl border border-zinc-200 dark:border-zinc-800">
-        <div className="flex items-center justify-between bg-zinc-900 px-4 py-2">
-          <span className="font-mono text-xs text-zinc-400">index.html — редактируйте код</span>
-          <button
-            type="button"
-            onClick={() => {
-              setCode(lesson.task.starter);
-              setPreview(lesson.task.starter);
-              setResults(null);
-              setPassed(false);
+      <div className="grid items-start gap-4 lg:grid-cols-2">
+        <div className="overflow-hidden rounded-3xl border border-zinc-200 dark:border-zinc-800">
+          <div className="flex items-center justify-between bg-zinc-900 px-4 py-2">
+            <span className="font-mono text-xs text-zinc-400">index.html — редактируйте код</span>
+            <button
+              type="button"
+              onClick={() => {
+                setCode(lesson.task.starter);
+                setPreview(lesson.task.starter);
+                setResults(null);
+                setPassed(false);
+              }}
+              className="text-xs font-medium text-zinc-400 transition hover:text-white"
+            >
+              ↺ Сбросить
+            </button>
+          </div>
+          <textarea
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Tab") {
+                e.preventDefault();
+                const ta = e.currentTarget;
+                const start = ta.selectionStart;
+                const end = ta.selectionEnd;
+                const next = code.slice(0, start) + "  " + code.slice(end);
+                setCode(next);
+                requestAnimationFrame(() => {
+                  ta.selectionStart = ta.selectionEnd = start + 2;
+                });
+              }
             }}
-            className="text-xs font-medium text-zinc-400 transition hover:text-white"
-          >
-            ↺ Сбросить
-          </button>
+            spellCheck={false}
+            className="block h-[26rem] w-full resize-y bg-zinc-950 p-4 font-mono text-[13px] leading-relaxed text-zinc-100 outline-none lg:h-[30rem]"
+          />
         </div>
-        <textarea
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Tab") {
-              e.preventDefault();
-              const ta = e.currentTarget;
-              const start = ta.selectionStart;
-              const end = ta.selectionEnd;
-              const next = code.slice(0, start) + "  " + code.slice(end);
-              setCode(next);
-              requestAnimationFrame(() => {
-                ta.selectionStart = ta.selectionEnd = start + 2;
-              });
-            }
-          }}
-          spellCheck={false}
-          className="block h-72 w-full resize-y bg-zinc-950 p-4 font-mono text-[13px] leading-relaxed text-zinc-100 outline-none"
-        />
+
+        <div className="overflow-hidden rounded-3xl border border-zinc-200 dark:border-zinc-800">
+          <div className="flex items-center justify-between border-b border-zinc-100 bg-white px-4 py-2 dark:border-zinc-800 dark:bg-zinc-900">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-zinc-400">Предпросмотр вашей страницы</span>
+            <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400">обновляется при вводе</span>
+          </div>
+          <iframe
+            ref={iframeRef}
+            title="Предпросмотр"
+            srcDoc={preview}
+            onLoad={handleLoad}
+            className="h-[26rem] w-full bg-white lg:h-[30rem]"
+            sandbox="allow-scripts allow-same-origin"
+          />
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={run}
-          className="rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
-        >
-          ▶ Запустить
-        </button>
         <button
           type="button"
           onClick={check}
@@ -245,20 +277,6 @@ export function TaskBlock({ lesson, onComplete }: { lesson: Lesson; onComplete: 
         </div>
       )}
 
-      <div className="overflow-hidden rounded-3xl border border-zinc-200 dark:border-zinc-800">
-        <div className="border-b border-zinc-100 bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-zinc-400 dark:border-zinc-800 dark:bg-zinc-900">
-          Предпросмотр вашей страницы
-        </div>
-        <iframe
-          ref={iframeRef}
-          title="Предпросмотр"
-          srcDoc={preview}
-          onLoad={handleLoad}
-          className="h-72 w-full bg-white"
-          sandbox="allow-scripts"
-        />
-      </div>
-
       {results && (
         <div
           className={`rounded-3xl border p-4 ${
@@ -278,7 +296,7 @@ export function TaskBlock({ lesson, onComplete }: { lesson: Lesson; onComplete: 
               </li>
             ))}
           </ul>
-          {!passed && <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">Поправьте код, нажмите «Запустить» и проверьте ещё раз. Если тупик — загляните в подсказку.</p>}
+          {!passed && <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">Поправьте код — предпросмотр обновится сам — и проверьте ещё раз. Если тупик — загляните в подсказку.</p>}
         </div>
       )}
     </div>
