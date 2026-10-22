@@ -1,0 +1,1 @@
+{"compilerOptions":{"baseUrl":"..","esModuleInterop":true,"jsx":"react-jsx","module":"commonjs","moduleResolution":"node","paths":{"@/*":["src/*"]},"rootDir":"../src","skipLibCheck":true,"target":"es2020","types":[]},"files":["../src/app/page.tsx"]}
