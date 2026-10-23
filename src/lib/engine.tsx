@@ -113,6 +113,10 @@ export function TaskBlock({ lesson, onComplete }: { lesson: Lesson; onComplete: 
   // Метка времени последнего нажатия «Проверить задание»: по ней handleLoad
   // понимает, что свежезагрузившийся документ превью надо сразу проверить.
   const checkRequestedAt = useRef(0);
+  // Документ превью, по которому проверки уже запускались в рамках текущего
+  // запроса. Проверки бывают с состоянием (клики переключают классы, счётчики
+  // растут), поэтому один и тот же документ нельзя проверять дважды подряд.
+  const lastCheckedDoc = useRef<Document | null>(null);
 
   useEffect(() => {
     setCode(lesson.task.starter);
@@ -121,6 +125,7 @@ export function TaskBlock({ lesson, onComplete }: { lesson: Lesson; onComplete: 
     setShowHint(false);
     setShowSolution(false);
     setPassed(false);
+    lastCheckedDoc.current = null;
   }, [lesson.id, lesson.task.starter]);
 
   // Живое обновление предпросмотра: 300 мс после последнего изменения кода.
@@ -134,6 +139,10 @@ export function TaskBlock({ lesson, onComplete }: { lesson: Lesson; onComplete: 
     const doc = iframe?.contentDocument;
     const win = iframe?.contentWindow;
     if (!doc || !win) return;
+    // Один документ — одна проверка: повторный запуск по тому же документу
+    // ломает проверки с состоянием (вторая проверка «кликает» ещё раз).
+    if (doc === lastCheckedDoc.current) return;
+    lastCheckedDoc.current = doc;
     try {
       const res = lesson.task.checks.map((c) => {
         try {
@@ -169,10 +178,13 @@ export function TaskBlock({ lesson, onComplete }: { lesson: Lesson; onComplete: 
     // несколько раз с интервалами. Раньше стоял флаг pendingCheck, который
     // «съедался» первым сработавшим путём (load или таймер): при неудачной
     // гонке проверка запускалась по ещё не применившемуся документу, а
-    // повторное нажатие могло вообще ничего не делать. Теперь каждая
-    // попытка безусловно перепроверяет актуальный документ превью,
-    // последняя попытка (1,6 с) всегда видит settled-состояние.
+    // повторное нажатие могло вообще ничего не делать. Теперь попытки
+    // идут по таймерам и по load, а runChecks сам следит, чтобы каждый
+    // документ превью проверялся ровно один раз (см. lastCheckedDoc).
     checkRequestedAt.current = Date.now();
+    // Свежий запрос пользователя: разрешаем проверку текущего документа,
+    // даже если он уже проверялся по прошлому нажатию.
+    lastCheckedDoc.current = null;
     setPreview(code);
     setTimeout(runChecks, 250);
     setTimeout(runChecks, 800);
