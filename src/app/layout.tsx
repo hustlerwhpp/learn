@@ -7,9 +7,10 @@ const inter = Inter({ subsets: ["latin", "cyrillic"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://learn.whpp.site"),
+  alternates: { canonical: "/" },
   title: "WHPP Learn — бесплатный интерактивный курс HTML, CSS и JavaScript",
   description:
-    "Полноценный бесплатный курс веб-разработки для начинающих: теория простыми словами, живые примеры и задания с автопроверкой прямо в браузере. HTML, CSS, немного JavaScript и финальный проект — своя страница с нуля.",
+    "Бесплатный интерактивный курс веб-разработки: HTML, CSS и JavaScript — теория простыми словами, живые примеры и задания с автопроверкой прямо в браузере.",
   openGraph: {
     title: "WHPP Learn — интерактивный курс HTML, CSS и JavaScript",
     description:
@@ -18,7 +19,9 @@ export const metadata: Metadata = {
     siteName: "WHPP Learn",
     type: "website",
     locale: "ru_RU",
+    images: [{ url: "/og.png", width: 1200, height: 630 }],
   },
+  twitter: { card: "summary_large_image" },
 };
 
 const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem("whpp-learn-theme");if(t==="dark"){document.documentElement.classList.add("dark");}}catch(e){}})();`;
@@ -31,6 +34,23 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           {THEME_INIT_SCRIPT}
         </Script>
         {children}
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Course",
+              name: "WHPP Learn — бесплатный курс HTML, CSS и JavaScript",
+              url: "https://learn.whpp.site/",
+              inLanguage: "ru",
+              isAccessibleForFree: true,
+              provider: { "@type": "Organization", name: "WHPP", sameAs: "https://whpp.site/" },
+              description:
+                "Бесплатный интерактивный курс веб-разработки: HTML, CSS и JavaScript — теория простыми словами, живые примеры и задания с автопроверкой прямо в браузере.",
+            }),
+          }}
+        />
 
         <Script
           id="yandex-metrika"
