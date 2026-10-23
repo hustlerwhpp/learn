@@ -1,4 +1,5 @@
 import type { CourseModule } from "./types";
+import { pxEq } from "./types";
 
 export const MODULE_CSS: CourseModule = {
   id: "css",
@@ -69,7 +70,7 @@ export const MODULE_CSS: CourseModule = {
             label: "У элемента с классом .note размер шрифта 20px",
             run: (doc, win) => {
               const el = doc.querySelector(".note");
-              return !!el && win.getComputedStyle(el).fontSize === "20px";
+              return !!el && pxEq(win.getComputedStyle(el).fontSize, 20);
             },
           },
         ],
@@ -146,7 +147,7 @@ export const MODULE_CSS: CourseModule = {
             label: "У h1 размер шрифта 36px",
             run: (doc, win) => {
               const el = doc.querySelector("h1");
-              return !!el && win.getComputedStyle(el).fontSize === "36px";
+              return !!el && pxEq(win.getComputedStyle(el).fontSize, 36);
             },
           },
           {
@@ -160,7 +161,7 @@ export const MODULE_CSS: CourseModule = {
             label: "У абзаца .lead размер шрифта 18px",
             run: (doc, win) => {
               const el = doc.querySelector(".lead");
-              return !!el && win.getComputedStyle(el).fontSize === "18px";
+              return !!el && pxEq(win.getComputedStyle(el).fontSize, 18);
             },
           },
           {
@@ -230,14 +231,14 @@ export const MODULE_CSS: CourseModule = {
             label: "У .card внутренний отступ padding 20px",
             run: (doc, win) => {
               const el = doc.querySelector(".card");
-              return !!el && win.getComputedStyle(el).paddingTop === "20px";
+              return !!el && pxEq(win.getComputedStyle(el).paddingTop, 20);
             },
           },
           {
             label: "У .card рамка толщиной 2px",
             run: (doc, win) => {
               const el = doc.querySelector(".card");
-              return !!el && win.getComputedStyle(el).borderTopWidth === "2px";
+              return !!el && pxEq(win.getComputedStyle(el).borderTopWidth, 2);
             },
           },
           {
@@ -251,14 +252,14 @@ export const MODULE_CSS: CourseModule = {
             label: "У .card внешний отступ margin 16px",
             run: (doc, win) => {
               const el = doc.querySelector(".card");
-              return !!el && win.getComputedStyle(el).marginTop === "16px";
+              return !!el && pxEq(win.getComputedStyle(el).marginTop, 16);
             },
           },
           {
             label: "У .card скругление углов 12px",
             run: (doc, win) => {
               const el = doc.querySelector(".card");
-              return !!el && win.getComputedStyle(el).borderTopLeftRadius === "12px";
+              return !!el && pxEq(win.getComputedStyle(el).borderTopLeftRadius, 12);
             },
           },
         ],
@@ -327,14 +328,14 @@ export const MODULE_CSS: CourseModule = {
             label: "У кнопок .btn верхний внутренний отступ 10px",
             run: (doc, win) => {
               const el = doc.querySelector(".btn");
-              return !!el && win.getComputedStyle(el).paddingTop === "10px";
+              return !!el && pxEq(win.getComputedStyle(el).paddingTop, 10);
             },
           },
           {
             label: "У кнопок .btn полностью круглые углы (999px)",
             run: (doc, win) => {
               const el = doc.querySelector(".btn");
-              return !!el && win.getComputedStyle(el).borderTopLeftRadius === "999px";
+              return !!el && pxEq(win.getComputedStyle(el).borderTopLeftRadius, 999);
             },
           },
           {
@@ -409,7 +410,7 @@ export const MODULE_CSS: CourseModule = {
             label: "Между элементами .row промежуток 12px",
             run: (doc, win) => {
               const el = doc.querySelector(".row");
-              return !!el && win.getComputedStyle(el).columnGap === "12px";
+              return !!el && pxEq(win.getComputedStyle(el).columnGap, 12);
             },
           },
           {
@@ -492,7 +493,7 @@ export const MODULE_CSS: CourseModule = {
             label: "Промежутки между ячейками 10px",
             run: (doc, win) => {
               const el = doc.querySelector(".gallery");
-              return !!el && win.getComputedStyle(el).columnGap === "10px";
+              return !!el && pxEq(win.getComputedStyle(el).columnGap, 10);
             },
           },
         ],
@@ -568,14 +569,14 @@ export const MODULE_CSS: CourseModule = {
             label: "Бейдж отступает 8px сверху",
             run: (doc, win) => {
               const el = doc.querySelector(".badge");
-              return !!el && win.getComputedStyle(el).top === "8px";
+              return !!el && pxEq(win.getComputedStyle(el).top, 8);
             },
           },
           {
             label: "Бейдж отступает 8px справа",
             run: (doc, win) => {
               const el = doc.querySelector(".badge");
-              return !!el && win.getComputedStyle(el).right === "8px";
+              return !!el && pxEq(win.getComputedStyle(el).right, 8);
             },
           },
         ],
@@ -635,7 +636,7 @@ export const MODULE_CSS: CourseModule = {
             label: "Контейнер .container ограничен шириной 800px",
             run: (doc, win) => {
               const el = doc.querySelector(".container");
-              return !!el && win.getComputedStyle(el).maxWidth === "800px";
+              return !!el && pxEq(win.getComputedStyle(el).maxWidth, 800);
             },
           },
           {
@@ -646,8 +647,9 @@ export const MODULE_CSS: CourseModule = {
                 try { rules = sheet.cssRules; } catch { continue; }
                 if (!rules) continue;
                 for (const rule of Array.from(rules)) {
-                  if (rule instanceof CSSStyleRule && rule.selectorText.split(",").map((s) => s.trim()).includes(".container")) {
-                    if (rule.style.marginLeft === "auto" && rule.style.marginRight === "auto") return true;
+                  const sr = rule as CSSStyleRule;
+                  if (rule.type === 1 && sr.selectorText.split(",").map((s) => s.trim()).includes(".container")) {
+                    if (sr.style.marginLeft === "auto" && sr.style.marginRight === "auto") return true;
                   }
                 }
               }
@@ -658,7 +660,7 @@ export const MODULE_CSS: CourseModule = {
             label: "У .container боковые отступы 16px",
             run: (doc, win) => {
               const el = doc.querySelector(".container");
-              return !!el && win.getComputedStyle(el).paddingLeft === "16px";
+              return !!el && pxEq(win.getComputedStyle(el).paddingLeft, 16);
             },
           },
           {
@@ -736,7 +738,7 @@ export const MODULE_CSS: CourseModule = {
             label: "У карточки .card скругление 16px",
             run: (doc, win) => {
               const el = doc.querySelector(".card");
-              return !!el && win.getComputedStyle(el).borderTopLeftRadius === "16px";
+              return !!el && pxEq(win.getComputedStyle(el).borderTopLeftRadius, 16);
             },
           },
           {
@@ -816,7 +818,7 @@ export const MODULE_CSS: CourseModule = {
             label: "У .product скругление углов 16px",
             run: (doc, win) => {
               const el = doc.querySelector(".product");
-              return !!el && win.getComputedStyle(el).borderTopLeftRadius === "16px";
+              return !!el && pxEq(win.getComputedStyle(el).borderTopLeftRadius, 16);
             },
           },
           {
@@ -830,14 +832,14 @@ export const MODULE_CSS: CourseModule = {
             label: "У .product внутренний отступ 24px",
             run: (doc, win) => {
               const el = doc.querySelector(".product");
-              return !!el && win.getComputedStyle(el).paddingTop === "24px";
+              return !!el && pxEq(win.getComputedStyle(el).paddingTop, 24);
             },
           },
           {
             label: "Цена .price крупная — 32px",
             run: (doc, win) => {
               const el = doc.querySelector(".price");
-              return !!el && win.getComputedStyle(el).fontSize === "32px";
+              return !!el && pxEq(win.getComputedStyle(el).fontSize, 32);
             },
           },
           {
