@@ -2,8 +2,84 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+  «Средняя» тема (запрошена пользователем 23.10.2026): чистые светлая
+  (#f6f6f8 + белый) и тёмная (#09090b + #f4f4f5) темы выжигали глаза
+  максимальным контрастом. Решение — сжать палитру к середине:
+  все оттенки zinc/violet и служебных цветов переопределены ниже в
+  более узком, мягком диапазоне. Компоненты не трогаем: Tailwind v4
+  строит утилиты от этих CSS-переменных, поэтому перекрашивается
+  весь интерфейс разом, в обеих темах.
+  - «Светлая» тема: мягкий серый фон #e6e7ea, карточки #edeef0
+    вместо белого, текст — тёмно-серый вместо чёрного.
+  - «Тёмная» тема: сумеречный серый фон #202329 вместо чёрного,
+    панели и текст подняты к середине шкалы.
+  Если захочется темнее/светлее — крутить в первую очередь zinc-950
+  (самый тёмный) и white/zinc-50 (самые светлые): остальная шкала
+  подтянута между ними.
+*/
 :root {
   color-scheme: light;
+
+  --color-white: #edeef0;
+  --color-black: #1d1f24;
+
+  --color-zinc-50: #d9dce1;
+  --color-zinc-100: #ccd0d7;
+  --color-zinc-200: #bbc0ca;
+  --color-zinc-300: #a6abb8;
+  --color-zinc-400: #8d93a2;
+  --color-zinc-500: #6f7584;
+  --color-zinc-600: #5c626f;
+  --color-zinc-700: #4b505b;
+  --color-zinc-800: #3c404a;
+  --color-zinc-900: #30333c;
+  --color-zinc-950: #24262d;
+
+  --color-violet-50: #e2ddf0;
+  --color-violet-100: #d5cdee;
+  --color-violet-200: #bfb2e2;
+  --color-violet-300: #a893d6;
+  --color-violet-400: #9278c9;
+  --color-violet-500: #7f63bc;
+  --color-violet-600: #6d51ab;
+  --color-violet-700: #5d4491;
+  --color-violet-800: #463361;
+  --color-violet-900: #3a2f52;
+  --color-violet-950: #2c2740;
+
+  --color-emerald-50: #d8e8dd;
+  --color-emerald-100: #c9dfd0;
+  --color-emerald-200: #a9cbb2;
+  --color-emerald-400: #5da271;
+  --color-emerald-500: #4c8f60;
+  --color-emerald-600: #3f7d52;
+  --color-emerald-800: #2f4a38;
+  --color-emerald-900: #283e30;
+  --color-emerald-950: #1f2f24;
+
+  --color-amber-50: #ece5d3;
+  --color-amber-100: #e6dcc2;
+  --color-amber-200: #d9c48f;
+  --color-amber-400: #c39a3f;
+  --color-amber-500: #b3852f;
+  --color-amber-900: #4a3d20;
+  --color-amber-950: #332b14;
+
+  --color-rose-50: #eedede;
+  --color-rose-200: #dcb3b3;
+  --color-rose-400: #c05f66;
+  --color-rose-500: #b04a51;
+  --color-rose-800: #57282c;
+  --color-rose-900: #472326;
+  --color-rose-950: #382022;
+
+  --color-red-400: #c05a5a;
+  --color-red-600: #b23b3b;
+
+  --color-indigo-50: #dfe0ee;
+  --color-indigo-600: #5a5fb0;
+  --color-indigo-950: #262840;
 }
 
 .dark {
@@ -11,24 +87,24 @@
 }
 
 body {
-  background-color: #f6f6f8;
-  color: #18181b;
+  background-color: #e6e7ea;
+  color: #22242a;
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   min-height: 100vh;
 }
 
 .dark body {
-  background-color: #09090b;
-  color: #f4f4f5;
+  background-color: #202329;
+  color: #d8dbe1;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgb(161 161 170 / 0.5) transparent;
+  scrollbar-color: rgb(141 147 162 / 0.55) transparent;
 }
 
 ::selection {
-  background-color: rgb(139 92 246 / 0.25);
+  background-color: rgb(127 99 188 / 0.28);
 }
 
 /* Лёгкий переход при смене экрана (список ↔ урок), без тяжёлой анимации. */

@@ -216,7 +216,7 @@ export default function HomePage() {
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-4 sm:px-6">
-      <header className="sticky top-0 z-30 -mx-4 border-b border-zinc-200/70 bg-[#f6f6f8]/90 px-4 backdrop-blur sm:-mx-6 sm:px-6 dark:border-zinc-800/70 dark:bg-[#09090b]/90">
+      <header className="sticky top-0 z-30 -mx-4 border-b border-zinc-200/70 bg-[#e6e7ea]/90 px-4 backdrop-blur sm:-mx-6 sm:px-6 dark:border-zinc-800/70 dark:bg-[#202329]/90">
         <div className="flex items-center gap-3 py-3">
           <button type="button" onClick={closeLesson} className="flex items-center gap-2.5 text-left" aria-label="WHPP Learn — на главную">
             <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-violet-600 text-white shadow-sm">
