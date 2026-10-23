@@ -530,8 +530,9 @@ export const MODULE_FINAL: CourseModule = {
                 try { rules = sheet.cssRules; } catch { continue; }
                 if (!rules) continue;
                 for (const rule of Array.from(rules)) {
-                  if (rule instanceof CSSStyleRule && rule.selectorText.split(",").map((s) => s.trim()).includes(".wrap")) {
-                    if (rule.style.marginLeft === "auto" && rule.style.marginRight === "auto") return true;
+                  const sr = rule as CSSStyleRule;
+                  if (rule.type === 1 && sr.selectorText.split(",").map((s) => s.trim()).includes(".wrap")) {
+                    if (sr.style.marginLeft === "auto" && sr.style.marginRight === "auto") return true;
                   }
                 }
               }
