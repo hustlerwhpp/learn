@@ -10,7 +10,7 @@ import { MODULE_ADVANCED } from "@/lib/course/advanced";
 import { LessonView } from "@/lib/engine";
 import { CertificateBlock } from "@/lib/certificate";
 
-/* Основной курс: 4 модуля, 27 уроков. Его состав и логика завершения не меняются. */
+/* Основной курс: 4 модуля, 28 уроков. Его состав и логика завершения не меняются. */
 const MODULES: CourseModule[] = [MODULE_HTML, MODULE_CSS, MODULE_JS, MODULE_FINAL];
 const ALL: { module: CourseModule; lesson: Lesson }[] = MODULES.flatMap((m) => m.lessons.map((l) => ({ module: m, lesson: l })));
 
@@ -407,7 +407,7 @@ export default function HomePage() {
                 <div>
                   <div className="font-semibold text-zinc-900 dark:text-zinc-50">Два сертификата — за каждый курс</div>
                   <p className="mt-1.5 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
-                    Пройдёте все 27 уроков основного курса — получите именной сертификат основного. Захотите большего — ещё один, за
+                    Пройдёте все 28 уроков основного курса — получите именной сертификат основного. Захотите большего — ещё один, за
                     углублённый. Сертификаты генерируются прямо в браузере и скачиваются картинкой: честная памятная точка в конце
                     пути, без громких обещаний.
                   </p>
