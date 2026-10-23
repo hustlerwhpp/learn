@@ -3,38 +3,34 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
-  «Средняя» тема (запрошена пользователем 23.10.2026): чистые светлая
-  (#f6f6f8 + белый) и тёмная (#09090b + #f4f4f5) темы выжигали глаза
-  максимальным контрастом. Решение — сжать палитру к середине:
-  все оттенки zinc/violet и служебных цветов переопределены ниже в
-  более узком, мягком диапазоне. Компоненты не трогаем: Tailwind v4
-  строит утилиты от этих CSS-переменных, поэтому перекрашивается
-  весь интерфейс разом, в обеих темах.
-  - «Светлая» тема: мягкий серый фон #e6e7ea, карточки #edeef0
-    вместо белого, текст — тёмно-серый вместо чёрного.
-  - «Тёмная» тема: сумеречный серый фон #202329 вместо чёрного,
-    панели и текст подняты к середине шкалы.
-  Если захочется темнее/светлее — крутить в первую очередь zinc-950
-  (самый тёмный) и white/zinc-50 (самые светлые): остальная шкала
-  подтянута между ними.
+  «Средняя» тема (запрошена пользователем 23.10.2026, контраст поправлен
+  в тот же день после жалобы «трудно прочитать текст»).
+  Идея: фоны остаются мягкими средними (светлая тема — серый #e6e7ea
+  вместо белого, тёмная — сумеречный #202329 вместо чёрного), но
+  ТЕКСТОВЫЕ оттенки разведены по темам и дают нормальный контраст:
+  палитра zinc определена дважды — в :root для светлой темы текст
+  темнее, в .dark для тёмной — светлее. Поверхности (фоны, карточки,
+  границы) в обеих темах живут в середине шкалы и глаза не выжигают.
+  Tailwind v4 строит утилиты от этих CSS-переменных, поэтому
+  перекрашивается весь интерфейс без правок компонентов.
 */
 :root {
   color-scheme: light;
 
   --color-white: #edeef0;
-  --color-black: #1d1f24;
+  --color-black: #17191d;
 
-  --color-zinc-50: #d9dce1;
-  --color-zinc-100: #ccd0d7;
-  --color-zinc-200: #bbc0ca;
-  --color-zinc-300: #a6abb8;
-  --color-zinc-400: #8d93a2;
-  --color-zinc-500: #6f7584;
-  --color-zinc-600: #5c626f;
-  --color-zinc-700: #4b505b;
-  --color-zinc-800: #3c404a;
-  --color-zinc-900: #30333c;
-  --color-zinc-950: #24262d;
+  --color-zinc-50: #e2e4e9;
+  --color-zinc-100: #d8dbe1;
+  --color-zinc-200: #c3c7d1;
+  --color-zinc-300: #a9aeb9;
+  --color-zinc-400: #646a77;
+  --color-zinc-500: #525864;
+  --color-zinc-600: #434956;
+  --color-zinc-700: #363b46;
+  --color-zinc-800: #2b2f37;
+  --color-zinc-900: #23262d;
+  --color-zinc-950: #1e2026;
 
   --color-violet-50: #e2ddf0;
   --color-violet-100: #d5cdee;
@@ -51,9 +47,9 @@
   --color-emerald-50: #d8e8dd;
   --color-emerald-100: #c9dfd0;
   --color-emerald-200: #a9cbb2;
-  --color-emerald-400: #5da271;
-  --color-emerald-500: #4c8f60;
-  --color-emerald-600: #3f7d52;
+  --color-emerald-400: #4c8f60;
+  --color-emerald-500: #418457;
+  --color-emerald-600: #35704a;
   --color-emerald-800: #2f4a38;
   --color-emerald-900: #283e30;
   --color-emerald-950: #1f2f24;
@@ -61,41 +57,62 @@
   --color-amber-50: #ece5d3;
   --color-amber-100: #e6dcc2;
   --color-amber-200: #d9c48f;
-  --color-amber-400: #c39a3f;
-  --color-amber-500: #b3852f;
+  --color-amber-400: #a67f2c;
+  --color-amber-500: #96712a;
   --color-amber-900: #4a3d20;
   --color-amber-950: #332b14;
 
   --color-rose-50: #eedede;
   --color-rose-200: #dcb3b3;
-  --color-rose-400: #c05f66;
-  --color-rose-500: #b04a51;
+  --color-rose-400: #b04a51;
+  --color-rose-500: #a03f47;
   --color-rose-800: #57282c;
   --color-rose-900: #472326;
   --color-rose-950: #382022;
 
-  --color-red-400: #c05a5a;
-  --color-red-600: #b23b3b;
+  --color-red-400: #b23b3b;
+  --color-red-600: #a02f2f;
 
   --color-indigo-50: #dfe0ee;
-  --color-indigo-600: #5a5fb0;
+  --color-indigo-600: #4f53a3;
   --color-indigo-950: #262840;
 }
 
 .dark {
   color-scheme: dark;
+
+  --color-zinc-50: #e8eaee;
+  --color-zinc-100: #dde0e6;
+  --color-zinc-200: #c9cedb;
+  --color-zinc-300: #b2b8c6;
+  --color-zinc-400: #a2a9b8;
+  --color-zinc-500: #868e9e;
+  --color-zinc-600: #6d7484;
+  --color-zinc-700: #4c515c;
+  --color-zinc-800: #3a3e47;
+  --color-zinc-900: #2c2f36;
+  --color-zinc-950: #24262c;
+
+  --color-violet-200: #c9bce8;
+  --color-violet-300: #b3a1de;
+  --color-violet-400: #a58ad8;
+
+  --color-emerald-400: #6cb283;
+  --color-amber-400: #d0a94e;
+  --color-rose-400: #cd747b;
+  --color-red-400: #cd7474;
 }
 
 body {
   background-color: #e6e7ea;
-  color: #22242a;
+  color: #1f2126;
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   min-height: 100vh;
 }
 
 .dark body {
   background-color: #202329;
-  color: #d8dbe1;
+  color: #e0e2e8;
 }
 
 * {
