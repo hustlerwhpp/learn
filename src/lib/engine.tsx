@@ -110,7 +110,9 @@ export function TaskBlock({ lesson, onComplete }: { lesson: Lesson; onComplete: 
   const [showSolution, setShowSolution] = useState(false);
   const [passed, setPassed] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const pendingCheck = useRef(false);
+  // Метка времени последнего нажатия «Проверить задание»: по ней handleLoad
+  // понимает, что свежезагрузившийся документ превью надо сразу проверить.
+  const checkRequestedAt = useRef(0);
 
   useEffect(() => {
     setCode(lesson.task.starter);
@@ -141,8 +143,12 @@ export function TaskBlock({ lesson, onComplete }: { lesson: Lesson; onComplete: 
         }
       });
       setResults(res);
-      if (res.every(Boolean)) {
-        setPassed(true);
+      // Вердикт обязан следовать за пунктами в обе стороны: раньше passed
+      // только выставлялся в true и не сбрасывался, из-за чего шапка
+      // результата продолжала показывать «выполнено» при проваленных пунктах.
+      const ok = res.every(Boolean);
+      setPassed(ok);
+      if (ok) {
         onComplete(lesson.id);
       }
     } catch {
@@ -151,29 +157,26 @@ export function TaskBlock({ lesson, onComplete }: { lesson: Lesson; onComplete: 
   }, [lesson, onComplete]);
 
   const handleLoad = () => {
-    if (pendingCheck.current) {
-      pendingCheck.current = false;
+    // Превью перезагружается и от дебаунса при вводе — проверяем по load
+    // только если недавно нажимали «Проверить задание».
+    if (Date.now() - checkRequestedAt.current < 3000) {
       setTimeout(runChecks, 60);
     }
   };
 
   const check = () => {
-    // Мгновенно применяем текущий код (не ждём дебаунс) и проверяем после загрузки.
-    pendingCheck.current = true;
+    // Мгновенно применяем текущий код (не ждём дебаунс) и проверяем
+    // несколько раз с интервалами. Раньше стоял флаг pendingCheck, который
+    // «съедался» первым сработавшим путём (load или таймер): при неудачной
+    // гонке проверка запускалась по ещё не применившемуся документу, а
+    // повторное нажатие могло вообще ничего не делать. Теперь каждая
+    // попытка безусловно перепроверяет актуальный документ превью,
+    // последняя попытка (1,6 с) всегда видит settled-состояние.
+    checkRequestedAt.current = Date.now();
     setPreview(code);
-    // если srcDoc не изменился, onLoad может не сработать — подстраховки
-    setTimeout(() => {
-      if (pendingCheck.current) {
-        pendingCheck.current = false;
-        runChecks();
-      }
-    }, 500);
-    setTimeout(() => {
-      if (pendingCheck.current) {
-        pendingCheck.current = false;
-        runChecks();
-      }
-    }, 1400);
+    setTimeout(runChecks, 250);
+    setTimeout(runChecks, 800);
+    setTimeout(runChecks, 1600);
   };
 
   return (
