@@ -81,6 +81,14 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             />
           </div>
         </noscript>
+
+        {/* Yandex Autoplacement 20284475 */}
+        <script src="https://yandex.ru/ads/system/context.js" async />
+        <script
+          data-page-id="20284475"
+          src="https://yandex.ru/ads/system/ap-loader.js"
+          async
+        />
       </body>
     </html>
   );
