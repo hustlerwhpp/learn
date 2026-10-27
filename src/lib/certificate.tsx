@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 /* ---------- Сертификат о прохождении курса ----------
    Появляется при 100% прогресса курса. Полностью клиентский:
@@ -10,9 +10,12 @@ export interface CertificateData {
   name: string;
   courseTitle: string;
   date: string;
+  /** Уникальный номер из реестра; без него строка с номером не рисуется. */
+  number?: string;
 }
 
 const NAME_KEY = "whpp-learn-cert-name";
+const numberKey = (courseId: string) => `whpp-learn-cert-number:${courseId}`;
 const W = 1680;
 const H = 1188;
 
@@ -123,6 +126,18 @@ export function drawCertificate(ctx: CanvasRenderingContext2D, data: Certificate
   ctx.fillText("WHPP", px, py - 16);
   ctx.font = "20px Arial, sans-serif";
   ctx.fillText("LEARN", px, py + 18);
+
+  // номер сертификата — строкой внизу по центру (если присвоен)
+  if (data.number) {
+    ctx.textAlign = "center";
+    ctx.fillStyle = grey;
+    ctx.font = "24px Arial, sans-serif";
+    ctx.fillText(
+      `Номер сертификата: ${data.number} · проверка: learn.whpp.site/verify`,
+      W / 2,
+      H - 84
+    );
+  }
 }
 
 function renderPng(data: CertificateData): HTMLCanvasElement | null {
@@ -135,9 +150,23 @@ function renderPng(data: CertificateData): HTMLCanvasElement | null {
   return canvas;
 }
 
-export function CertificateBlock({ courseTitle, accent }: { courseTitle: string; accent?: string }) {
+export function CertificateBlock({
+  courseTitle,
+  accent,
+  courseId,
+}: {
+  courseTitle: string;
+  accent?: string;
+  /** Устойчивый ключ курса: номер запоминается отдельно для каждого. */
+  courseId: string;
+}) {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
+  const [number, setNumber] = useState<string | null>(null);
+  const [numberState, setNumberState] = useState<
+    "loading" | "ready" | "unavailable"
+  >("loading");
+  const mintingRef = useRef(false);
 
   useEffect(() => {
     try {
@@ -148,10 +177,41 @@ export function CertificateBlock({ courseTitle, accent }: { courseTitle: string;
     }
   }, []);
 
+  // Номер: берём сохранённый для этого курса, иначе один раз просим
+  // сервер выдать новый. Номер — единственное, что уходит на сервер.
+  const mintNumber = useCallback(async () => {
+    if (mintingRef.current) return;
+    mintingRef.current = true;
+    setNumberState("loading");
+    try {
+      const saved = localStorage.getItem(numberKey(courseId));
+      if (saved) {
+        setNumber(saved);
+        setNumberState("ready");
+        return;
+      }
+      const res = await fetch("/api/certificates/issue", { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.number) throw new Error(data.error || "Ошибка выдачи номера");
+      localStorage.setItem(numberKey(courseId), data.number);
+      setNumber(data.number);
+      setNumberState("ready");
+    } catch {
+      setNumberState("unavailable");
+    } finally {
+      mintingRef.current = false;
+    }
+  }, [courseId]);
+
+  useEffect(() => {
+    mintNumber();
+  }, [mintNumber]);
+
   const data = (): CertificateData => ({
     name: name.trim(),
     courseTitle,
     date: formatToday(),
+    number: number ?? undefined,
   });
 
   const saveName = (v: string) => {
@@ -252,8 +312,34 @@ export function CertificateBlock({ courseTitle, accent }: { courseTitle: string;
           </button>
         </div>
         {error && <p className="mt-3 text-sm font-medium text-red-600 dark:text-red-400">{error}</p>}
+        {numberState === "ready" && number && (
+          <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-300">
+            Номер сертификата:{" "}
+            <span className="font-mono font-semibold text-zinc-900 dark:text-zinc-50">{number}</span>{" "}
+            ·{" "}
+            <a
+              href={`/verify?number=${encodeURIComponent(number)}`}
+              className="font-medium text-violet-600 underline underline-offset-2 hover:text-violet-500 dark:text-violet-300"
+            >
+              Проверить подлинность
+            </a>
+          </p>
+        )}
+        {numberState === "unavailable" && (
+          <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
+            Номер пока не присвоен — сервер номеров недоступен. Картинку всё равно можно скачать, а номер появится позже.{" "}
+            <button
+              type="button"
+              onClick={mintNumber}
+              className="cursor-pointer font-medium text-violet-600 underline underline-offset-2 hover:text-violet-500 dark:text-violet-300"
+            >
+              Попробовать снова
+            </button>
+          </p>
+        )}
         <p className="mt-3 text-xs text-zinc-400 dark:text-zinc-500">
-          Имя никуда не отправляется: сертификат рисуется прямо в вашем браузере.
+          Имя никуда не отправляется: сертификат рисуется прямо в вашем браузере. Для проверки подлинности на сервер
+          записывается только номер сертификата — без имени и других данных.
         </p>
       </div>
     </section>
