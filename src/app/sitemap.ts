@@ -6,5 +6,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: "https://learn.whpp.site/",
       lastModified: new Date(),
     },
+    {
+      url: "https://learn.whpp.site/verify",
+      lastModified: new Date(),
+    },
   ];
 }

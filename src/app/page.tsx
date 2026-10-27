@@ -438,7 +438,7 @@ export default function HomePage() {
               );
             })}
 
-            {mainComplete && <CertificateBlock courseTitle="WHPP Learn — основной курс" accent="Основной курс" />}
+            {mainComplete && <CertificateBlock courseTitle="WHPP Learn — основной курс" accent="Основной курс" courseId="main" />}
 
             <section className="mt-12">
               <div className="rounded-3xl border border-violet-200 bg-gradient-to-br from-violet-50 to-indigo-50 p-6 sm:p-8 dark:border-violet-900/60 dark:from-violet-950/40 dark:to-indigo-950/30">
@@ -508,7 +508,7 @@ export default function HomePage() {
                 );
               })}
 
-              {advComplete && <CertificateBlock courseTitle="WHPP Learn — углублённый курс" accent="Углублённый курс" />}
+              {advComplete && <CertificateBlock courseTitle="WHPP Learn — углублённый курс" accent="Углублённый курс" courseId="advanced" />}
             </section>
           </div>
         )}
