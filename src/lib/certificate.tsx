@@ -273,7 +273,7 @@ export function CertificateBlock({
   };
 
   return (
-    <section className="mt-10 overflow-hidden rounded-3xl border border-violet-300 bg-white shadow-sm dark:border-violet-900/70 dark:bg-zinc-900">
+    <section id={`certificate-${courseId}`} className="mt-10 scroll-mt-20 overflow-hidden rounded-3xl border border-violet-300 bg-white shadow-sm dark:border-violet-900/70 dark:bg-zinc-900">
       <div className="border-b-4 border-double border-violet-300 px-6 py-6 sm:px-8 dark:border-violet-900/70">
         <div className="text-xs font-semibold uppercase tracking-[0.25em] text-violet-600 dark:text-violet-300">WHPP Learn</div>
         <h2 className="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-50">Ваш сертификат</h2>
