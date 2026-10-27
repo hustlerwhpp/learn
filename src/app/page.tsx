@@ -99,6 +99,9 @@ export default function HomePage() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [done, setDone] = useState<Record<string, boolean>>({});
   const [dark, setDark] = useState(false);
+  // На зеркале переводчика кнопка перевода меняет подпись и направление:
+  // определяется после монтирования, чтобы не расходиться с серверным HTML.
+  const [translated, setTranslated] = useState(false);
 
   /* Скроллом управляем вручную: при открытии урока — вверх страницы,
      при возврате в список — на ту же позицию, где список оставили. */
@@ -108,6 +111,11 @@ export default function HomePage() {
 
   useEffect(() => {
     setDark(document.documentElement.classList.contains("dark"));
+    try {
+      setTranslated(window.location.hostname.includes("translate.goog"));
+    } catch {
+      /* noop */
+    }
     try {
       const raw = localStorage.getItem(PROGRESS_KEY);
       if (raw) setDone(JSON.parse(raw) as Record<string, boolean>);
@@ -163,16 +171,27 @@ export default function HomePage() {
     }
   };
 
-  /* Перевод страницы через Google-переводчик: кнопка уводит на зеркало
-     translate.goog с текущей страницы (включая открытый урок — он в хэше).
-     Свой перевод мы не пишем: переводит Google, бесплатно и сразу всё,
-     включая уроки. Обратно — через «Show original» в панели переводчика.
+  /* Перевод страницы через Google-переводчик — переключатель в обе стороны:
+     на основном сайте кнопка уводит на зеркало translate.goog с текущей
+     страницы (включая открытый урок — он в хэше), а на зеркале та же
+     кнопка возвращает на оригинальный адрес, вычищая служебные параметры
+     переводчика. Свой перевод мы не пишем: переводит Google, бесплатно
+     и сразу всё, включая уроки. Обратно — также через «Show original»
+     в панели переводчика.
      Нюанс: у зеркала другой домен, поэтому прогресс, тема и имя для
      сертификата хранятся там отдельно от основного сайта. */
-  const switchToEnglish = () => {
+  const toggleTranslation = () => {
     try {
-      if (window.location.hostname.includes("translate.goog")) return;
-      const { pathname, search, hash } = window.location;
+      const { hostname, pathname, search, hash } = window.location;
+      if (hostname.includes("translate.goog")) {
+        const params = new URLSearchParams(search);
+        params.delete("_x_tr_sl");
+        params.delete("_x_tr_tl");
+        params.delete("_x_tr_hl");
+        const qs = params.toString();
+        window.location.href = `https://learn.whpp.site${pathname}${qs ? `?${qs}` : ""}${hash}`;
+        return;
+      }
       const sep = search ? "&" : "?";
       window.location.href =
         `https://learn-whpp-site.translate.goog${pathname}${search}${sep}` +
@@ -265,13 +284,15 @@ export default function HomePage() {
             </a>
             <button
               type="button"
-              onClick={switchToEnglish}
-              title="Switch to English"
-              aria-label="Switch to English"
+              onClick={toggleTranslation}
+              title={translated ? "Switch to Russian" : "Switch to English"}
+              aria-label={translated ? "Switch to Russian" : "Switch to English"}
               className="flex h-10 cursor-pointer items-center justify-center whitespace-nowrap rounded-xl border border-zinc-300 bg-white px-3 text-[13px] font-medium text-zinc-600 transition hover:bg-zinc-100 sm:text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
             >
-              <span className="hidden sm:inline">Switch to English</span>
-              <span className="sm:hidden">EN</span>
+              <span className="hidden sm:inline">
+                {translated ? "Switch to Russian" : "Switch to English"}
+              </span>
+              <span className="sm:hidden">{translated ? "RU" : "EN"}</span>
             </button>
             <button
               type="button"
