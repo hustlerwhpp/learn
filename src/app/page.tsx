@@ -163,6 +163,25 @@ export default function HomePage() {
     }
   };
 
+  /* Перевод страницы через Google-переводчик: кнопка уводит на зеркало
+     translate.goog с текущей страницы (включая открытый урок — он в хэше).
+     Свой перевод мы не пишем: переводит Google, бесплатно и сразу всё,
+     включая уроки. Обратно — через «Show original» в панели переводчика.
+     Нюанс: у зеркала другой домен, поэтому прогресс, тема и имя для
+     сертификата хранятся там отдельно от основного сайта. */
+  const switchToEnglish = () => {
+    try {
+      if (window.location.hostname.includes("translate.goog")) return;
+      const { pathname, search, hash } = window.location;
+      const sep = search ? "&" : "?";
+      window.location.href =
+        `https://learn-whpp-site.translate.goog${pathname}${search}${sep}` +
+        `_x_tr_sl=ru&_x_tr_tl=en&_x_tr_hl=en${hash}`;
+    } catch {
+      /* noop */
+    }
+  };
+
   /* Открыть урок. mode "push" — из списка (новая запись в истории),
      "replace" — переход урок→урок (запись та же, история не растёт). */
   const openLesson = (id: string, mode: "push" | "replace" = "push") => {
@@ -244,6 +263,16 @@ export default function HomePage() {
             >
               Проверить сертификат
             </a>
+            <button
+              type="button"
+              onClick={switchToEnglish}
+              title="Switch to English"
+              aria-label="Switch to English"
+              className="flex h-10 cursor-pointer items-center justify-center whitespace-nowrap rounded-xl border border-zinc-300 bg-white px-3 text-[13px] font-medium text-zinc-600 transition hover:bg-zinc-100 sm:text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            >
+              <span className="hidden sm:inline">Switch to English</span>
+              <span className="sm:hidden">EN</span>
+            </button>
             <button
               type="button"
               onClick={toggleTheme}
