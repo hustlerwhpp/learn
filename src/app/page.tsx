@@ -235,6 +235,15 @@ export default function HomePage() {
                 Пройдено: {doneCount} из {ALL.length}
               </span>
             )}
+            {/* Тихая ссылка на проверку сертификата: видна всегда (шапка
+                липкая), но оформлена обычным серым текстом без акцента,
+                чтобы не отвлекать от учёбы. */}
+            <a
+              href="/verify"
+              className="whitespace-nowrap px-1 text-[13px] text-zinc-500 transition hover:text-zinc-900 sm:text-sm dark:text-zinc-400 dark:hover:text-zinc-50"
+            >
+              Проверить сертификат
+            </a>
             <button
               type="button"
               onClick={toggleTheme}
