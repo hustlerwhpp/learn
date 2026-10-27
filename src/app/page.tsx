@@ -226,6 +226,19 @@ export default function HomePage() {
     }
   };
 
+  /* Переход к блоку сертификата из конца последнего урока: закрываем урок
+     и, когда список уже отрендерился, плавно скроллим к сертификату.
+     Блок существует только при пройденном курсе — кнопка показывается
+     лишь тогда, поэтому элемент на месте гарантированно. */
+  const goToCertificate = (courseId: string) => {
+    closeLesson();
+    window.setTimeout(() => {
+      document
+        .getElementById(`certificate-${courseId}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 300);
+  };
+
   const complete = (id: string) => {
     setDone((prev) => {
       const next = { ...prev, [id]: true };
@@ -364,9 +377,20 @@ export default function HomePage() {
                   {next.lesson.title} →
                 </button>
               ) : (
-                <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                  {activeIsAdv ? "Это последний урок углублённого курса" : "Это последний урок курса"}
-                </span>
+                <div className="flex flex-col items-end gap-2">
+                  <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                    {activeIsAdv ? "Это последний урок углублённого курса" : "Это последний урок курса"}
+                  </span>
+                  {(activeIsAdv ? advComplete : mainComplete) && (
+                    <button
+                      type="button"
+                      onClick={() => goToCertificate(activeIsAdv ? "advanced" : "main")}
+                      className="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+                    >
+                      Получить сертификат
+                    </button>
+                  )}
+                </div>
               )}
             </div>
           </div>
