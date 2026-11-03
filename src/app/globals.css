@@ -145,3 +145,70 @@ body {
     animation: none;
   }
 }
+
+/* WHPP-POLISH: доступность, reduced-motion, print. Визуальная тема и цвета НЕ изменены. */
+
+:focus-visible {
+  outline: 3px solid #7f63bc;
+  outline-offset: 2px;
+}
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+html, body {
+  overflow-x: clip;
+}
+img, video, canvas {
+  max-width: 100%;
+  height: auto;
+}
+button, a, input, select, textarea, label {
+  touch-action: manipulation;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+  button, a {
+    transition: transform 150ms ease;
+  }
+  button:active, a:active {
+    transform: scale(0.98);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html {
+    scroll-behavior: auto !important;
+  }
+}
+@media (pointer: coarse) {
+  button, input[type="button"], input[type="submit"] {
+    min-height: 44px;
+  }
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  a {
+    color: #000000;
+    text-decoration: underline;
+  }
+  button {
+    display: none !important;
+  }
+  pre, code {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  section, article, li {
+    break-inside: avoid;
+  }
+}
