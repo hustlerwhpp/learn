@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin", "cyrillic"] });
+const inter = Inter({ subsets: ["latin", "cyrillic"], display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://learn.whpp.site"),
@@ -22,6 +22,15 @@ export const metadata: Metadata = {
     images: [{ url: "/og.png", width: 1200, height: 630 }],
   },
   twitter: { card: "summary_large_image" },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#e6e7ea" },
+    { media: "(prefers-color-scheme: dark)", color: "#202329" },
+  ],
 };
 
 const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem("whpp-learn-theme");if(t==="dark"){document.documentElement.classList.add("dark");}}catch(e){}})();`;
